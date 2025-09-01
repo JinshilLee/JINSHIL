@@ -6,7 +6,6 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&family=Noto+Serif+KR&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
-    /* Body and layout */
     body {
       margin: 0;
       height: 100vh;
@@ -20,7 +19,6 @@
       font-family: 'Noto Serif', serif;
     }
 
-    /* Transparent texture overlay */
     body::before {
       content: "";
       position: fixed;
@@ -36,13 +34,12 @@
       pointer-events: none;
     }
 
-    /* Hide default cursor */
     * { cursor: none !important; }
 
-    /* Navbar styles */
+    /* Navbar */
     .navbar {
       position: fixed;
-      top: 20px;
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -122,6 +119,7 @@
       justify-content: center;
       z-index: 30000;
       transition: opacity 0.8s ease;
+      overflow: hidden;
     }
     .loading-screen.hidden {
       opacity: 0;
@@ -129,30 +127,43 @@
     }
     .loading-text {
       font-family: 'Noto Serif', serif;
-      font-size: 2rem;
+      font-size: 2.4rem;
       color: #4B2E2E;
       text-align: center;
       max-width: 90%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.2rem;
+    }
+    .loading-text span {
+      opacity: 0;
+      transform: translateY(20px);
+      display: inline-block;
+      animation: floatUp 0.6s forwards;
+    }
+    @keyframes floatUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-     /* 📱 Mobile styles */
+    /* 📱 Mobile styles */
     @media (max-width: 768px) {
       body { cursor: auto; }
       * { cursor: auto !important; }
       .cursor-circle { display: none; }
 
-      /* Make JINSHIL bigger */
       .container {
-        font-size: 14rem !important;
+        font-size: 16rem !important; /* bigger JINSHIL */
       }
 
-      /* Make the quote scale with screen */
       .loading-text {
-        font-size: 6vw !important;  /* responsive */
+        font-size: 7vw !important;
         line-height: 1.4;
       }
 
-      /* Navbar takes full width */
       .navbar {
         top: 0;
         left: 0;
@@ -160,21 +171,21 @@
         width: 100%;
         justify-content: space-around;
         background: #4B2E2E;
-        padding: 10px 0;
+        padding: 12px 0;
       }
       .navbar button {
         flex: 1;
         border-radius: 0;
         border: none;
-        font-size: 1.6rem !important;
+        font-size: 1.8rem !important;
       }
     }
-</style>
+  </style>
 </head>
 <body>
   <!-- Loading screen -->
   <div class="loading-screen">
-    <span class="loading-text"></span>
+    <div class="loading-text"></div>
   </div>
 
   <!-- Navbar -->
@@ -193,78 +204,75 @@
   <!-- Custom Cursor -->
   <div class="cursor-circle"></div>
 
- <script>
-  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  <script>
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-  // Typing effect for quote
-  const loadingScreen = document.querySelector('.loading-screen');
-  const loadingText = document.querySelector('.loading-text');
-  const quote = `"I am always stressed" - Takashi Murakami`;
-  let i = 0;
+    // Floating animation for loading screen
+    const loadingScreen = document.querySelector('.loading-screen');
+    const loadingText = document.querySelector('.loading-text');
+    const quote = `"I am always stressed" - Takashi Murakami`;
 
-  function typeWriter() {
-    if (i < quote.length) {
-      loadingText.textContent += quote.charAt(i);
-      i++;
-      setTimeout(typeWriter, 50);
-    } else {
-      setTimeout(() => {
-        loadingScreen.classList.add('hidden');
-      }, 1200); // wait a moment, then fade
-    }
-  }
-  typeWriter();
-
-  if (!isMobile) {
-    // ✅ only enable glass cursor effect on desktop
-    const cursor = document.querySelector('.cursor-circle');
-    let mouseX = 0, mouseY = 0, rafId;
-
-    document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      if (!rafId) rafId = requestAnimationFrame(updateCursor);
+    quote.split("").forEach((char, index) => {
+      const span = document.createElement("span");
+      span.textContent = char === " " ? "\u00A0" : char; // preserve spaces
+      span.style.animationDelay = `${index * 0.05}s`;
+      loadingText.appendChild(span);
     });
 
-    function updateCursor() {
-      cursor.style.left = mouseX + 'px';
-      cursor.style.top = mouseY + 'px';
-      rafId = null;
-    }
+    // Hide after animation
+    setTimeout(() => {
+      loadingScreen.classList.add("hidden");
+    }, quote.length * 50 + 1200);
 
-    const container = document.querySelector('.container');
-    const english = document.querySelector('.english');
-    const korean = document.querySelector('.korean');
+    if (!isMobile) {
+      const cursor = document.querySelector('.cursor-circle');
+      let mouseX = 0, mouseY = 0, rafId;
 
-    function updateKorean() {
-      const englishRect = english.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      korean.style.top = (englishRect.top - containerRect.top) + 'px';
-      korean.style.left = (englishRect.left - containerRect.left) + 'px';
-    }
-    updateKorean();
-    window.addEventListener('resize', updateKorean);
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (!rafId) rafId = requestAnimationFrame(updateCursor);
+      });
 
-    let revealed = false;
-    document.addEventListener('mousemove', (e) => {
-      if (!revealed) {
-        korean.style.opacity = '1';
-        revealed = true;
+      function updateCursor() {
+        cursor.style.left = mouseX + 'px';
+        cursor.style.top = mouseY + 'px';
+        rafId = null;
       }
 
-      const rect = container.getBoundingClientRect();
-      const relativeX = e.clientX - rect.left;
-      const relativeY = e.clientY - rect.top;
+      const container = document.querySelector('.container');
+      const english = document.querySelector('.english');
+      const korean = document.querySelector('.korean');
 
-      const mask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, white 100%, transparent 100%)`;
-      korean.style.webkitMaskImage = mask;
-      korean.style.maskImage = mask;
+      function updateKorean() {
+        const englishRect = english.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        korean.style.top = (englishRect.top - containerRect.top) + 'px';
+        korean.style.left = (englishRect.left - containerRect.left) + 'px';
+      }
+      updateKorean();
+      window.addEventListener('resize', updateKorean);
 
-      const inverseMask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, transparent 100%, white 100%)`;
-      english.style.webkitMaskImage = inverseMask;
-      english.style.maskImage = inverseMask;
-    });
-  }
-</script>
+      let revealed = false;
+      document.addEventListener('mousemove', (e) => {
+        if (!revealed) {
+          korean.style.opacity = '1';
+          revealed = true;
+        }
+
+        const rect = container.getBoundingClientRect();
+        const relativeX = e.clientX - rect.left;
+        const relativeY = e.clientY - rect.top;
+
+        const mask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, white 100%, transparent 100%)`;
+        korean.style.webkitMaskImage = mask;
+        korean.style.maskImage = mask;
+
+        const inverseMask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, transparent 100%, white 100%)`;
+        english.style.webkitMaskImage = inverseMask;
+        english.style.maskImage = inverseMask;
+      });
+    }
+  </script>
 </body>
 </html>
