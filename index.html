@@ -54,7 +54,7 @@
       background: #4B2E2E;
       border: 2px solid #4B2E2E;
       color: #FAEBD7;
-      padding: 12px 20px; /* larger padding */
+      padding: 12px 20px;
       border-radius: 8px;
       font-family: inherit;
       font-size: inherit;
@@ -172,22 +172,25 @@
         line-height: 1.4;
       }
 
+      /* Navbar stays as regular buttons but scales to fit */
       .navbar {
         top: 0;
         left: 0;
         transform: none !important;
         width: 100%;
-        justify-content: space-around;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
         background: #4B2E2E;
-        padding-top: 20px; /* added padding */
-        padding-bottom: 10px;
+        padding: 15px 5px;
       }
       .navbar button {
-        flex: 1;
-        border-radius: 0;
-        border: none;
-        font-size: 2rem !important; /* larger buttons */
-        padding: 16px 0; /* bigger touch area */
+        flex: 1 1 auto; /* scale proportionally */
+        min-width: 0;
+        font-size: 1.8rem; /* slightly larger */
+        padding: 12px 5px;
+        border-radius: 8px; /* keep original rounded look */
+        border: 2px solid #4B2E2E;
       }
     }
   </style>
@@ -298,5 +301,3 @@
   </script>
 </body>
 </html>
-
-
