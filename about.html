@@ -68,6 +68,7 @@
 
     a { all: unset; text-decoration: none; color: inherit; cursor: pointer; }
 
+    /* Custom cursor */
     .cursor-circle {
       position: fixed;
       width: 12px;
@@ -80,67 +81,43 @@
       z-index: 9999;
     }
 
-    /* Loading Screen */
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #FAEBD7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 30000;
-    }
-
-    .typing-text span {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
-      color: #4B2E2E;
-      opacity: 0;
-      animation: appear 0.15s forwards;
-    }
-
-    @keyframes appear { to { opacity: 1; } }
-
-    /* About text */
-    .about-text {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
-      color: #4B2E2E;
+    /* Text container with Korean visible by default */
+    .container {
+      position: relative;
       text-align: center;
-      padding-left: 13%;
-      padding-right: 13%;
-      margin-top: 20px;
+      font-size: 6rem;
+      font-weight: bold;
+      color: #4B2E2E;
+      z-index: 1;
     }
-
-    .about-korean {
+    .korean {
       font-family: 'Noto Serif KR', serif;
-      font-size: 4rem;
+      position: relative;
       color: #4B2E2E;
-      text-align: center;
-      display: block;
-      margin-bottom: 20px;
+      z-index: 1;
+    }
+    .english {
+      font-family: 'Space Grotesk', sans-serif;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #4B2E2E;
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    /* 📱 Mobile styles */
+    /* Mobile adjustments */
     @media (max-width: 768px) {
       body { cursor: auto; }
       * { cursor: auto !important; }
       .cursor-circle { display: none; }
 
-      /* Center typing animation */
-      .loading-screen {
-        align-items: center;
-        justify-content: center;
+      .container {
+        font-size: 12vw;
       }
 
-      .typing-text span {
-        font-size: 6vw !important; /* bigger on mobile */
-      }
-
-      /* Navbar centered at top */
       .navbar {
         top: 0;
         left: 50%;
@@ -158,25 +135,10 @@
         padding: 12px 16px;
         border-radius: 8px;
       }
-
-      /* About text adjustments */
-      .about-text {
-        font-size: 5vw;
-        padding-left: 5%;
-        padding-right: 5%;
-      }
-
-      .about-korean {
-        font-size: 10vw;
-      }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
-  <div class="loading-screen">
-    <div class="typing-text" id="typing">JINSHIL</div>
-  </div>
 
   <!-- Navbar -->
   <div class="navbar">
@@ -185,44 +147,47 @@
     <a href="work.html"><button>work</button></a>
   </div>
 
-  <!-- Page content -->
-  <div class="about-text">
-    <b class="about-korean">안녕</b>
-    welcome to Jinshil. based out of canada and love doing web design and development. it feels rewarding being able to develop and launch websites, especially from a design perspective. <br><br>
-    contact Jinshil for pricing and collaborations below.
+  <!-- Text Container -->
+  <div class="container">
+    <div class="korean">안녕</div>
+    <div class="english">hi</div>
   </div>
 
   <!-- Custom cursor -->
   <div class="cursor-circle"></div>
 
   <script>
-    // Cursor movement
-    const cursor = document.querySelector('.cursor-circle');
-    document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
-    });
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-    // Letter-by-letter typing animation
-    const typingText = document.getElementById('typing');
-    const text = typingText.textContent;
-    typingText.textContent = ''; // Clear original text
+    if (!isMobile) {
+      const cursor = document.querySelector('.cursor-circle');
+      const english = document.querySelector('.english');
+      const korean = document.querySelector('.korean');
+      const container = document.querySelector('.container');
 
-    text.split('').forEach((char, i) => {
-      const span = document.createElement('span');
-      span.textContent = char;
-      span.style.animationDelay = `${i * 0.15}s`;
-      typingText.appendChild(span);
-    });
+      let revealed = false;
 
-    // Hide loading screen after full animation
-    const totalTime = text.length * 150 + 500; // letters * delay + extra 0.5s
-    const loading = document.querySelector('.loading-screen');
-    setTimeout(() => {
-      loading.style.transition = 'opacity 0.5s';
-      loading.style.opacity = '0';
-      setTimeout(() => loading.remove(), 500);
-    }, totalTime);
+      // Cursor follow
+      document.addEventListener('mousemove', e => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+
+        // Relative position inside container
+        const rect = container.getBoundingClientRect();
+        const relativeX = e.clientX - rect.left;
+        const relativeY = e.clientY - rect.top;
+
+        // Reveal English text through a circle mask
+        const mask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, white 100%, transparent 100%)`;
+        english.style.webkitMaskImage = mask;
+        english.style.maskImage = mask;
+
+        // Hide Korean inside the circle
+        const inverseMask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, transparent 100%, white 100%)`;
+        korean.style.webkitMaskImage = inverseMask;
+        korean.style.maskImage = inverseMask;
+      });
+    }
   </script>
 </body>
 </html>
