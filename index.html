@@ -121,71 +121,60 @@
       align-items: center;
       justify-content: center;
       z-index: 30000;
+      transition: opacity 0.8s ease;
+    }
+    .loading-screen.hidden {
+      opacity: 0;
       pointer-events: none;
     }
     .loading-text {
       font-family: 'Noto Serif', serif;
       font-size: 2rem;
       color: #4B2E2E;
-      display: flex;
-      flex-wrap: wrap;
-    }
-    .loading-text span {
-      opacity: 0;
-      display: inline-block;
-      transform: translateY(20px);
-      animation: floatUp 0.5s forwards;
-    }
-    @keyframes floatUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      text-align: center;
+      max-width: 90%;
     }
 
      /* 📱 Mobile styles */
-  @media (max-width: 768px) {
-    body { cursor: auto; }
-    * { cursor: auto !important; }
-    .cursor-circle { display: none; }
+    @media (max-width: 768px) {
+      body { cursor: auto; }
+      * { cursor: auto !important; }
+      .cursor-circle { display: none; }
 
-    /* Make JINSHIL bigger */
-    .container {
-      font-size: 14rem !important;
-    }
-    .english {
-      font-size: inherit !important;
-    }
+      /* Make JINSHIL bigger */
+      .container {
+        font-size: 14rem !important;
+      }
 
-    /* Make the quote bigger */
-    .loading-text {
-      font-size: 3rem !important;
-      text-align: center;
-    }
+      /* Make the quote scale with screen */
+      .loading-text {
+        font-size: 6vw !important;  /* responsive */
+        line-height: 1.4;
+      }
 
-    /* Navbar takes full width */
-    .navbar {
-      top: 0;
-      left: 0;
-      transform: none !important;
-      width: 100%;
-      justify-content: space-around;
-      background: #4B2E2E;
-      padding: 10px 0;
+      /* Navbar takes full width */
+      .navbar {
+        top: 0;
+        left: 0;
+        transform: none !important;
+        width: 100%;
+        justify-content: space-around;
+        background: #4B2E2E;
+        padding: 10px 0;
+      }
+      .navbar button {
+        flex: 1;
+        border-radius: 0;
+        border: none;
+        font-size: 1.6rem !important;
+      }
     }
-    .navbar button {
-      flex: 1;
-      border-radius: 0;
-      border: none;
-      font-size: 1.6rem !important;
-    }
-  }
 </style>
 </head>
 <body>
   <!-- Loading screen -->
   <div class="loading-screen">
-    <span class="loading-text">"I&nbsp;am&nbsp;always&nbsp;stressed"&nbsp;-&nbsp;Takashi&nbsp;Murakami</span>
+    <span class="loading-text"></span>
   </div>
 
   <!-- Navbar -->
@@ -206,6 +195,25 @@
 
  <script>
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+  // Typing effect for quote
+  const loadingScreen = document.querySelector('.loading-screen');
+  const loadingText = document.querySelector('.loading-text');
+  const quote = `"I am always stressed" - Takashi Murakami`;
+  let i = 0;
+
+  function typeWriter() {
+    if (i < quote.length) {
+      loadingText.textContent += quote.charAt(i);
+      i++;
+      setTimeout(typeWriter, 50);
+    } else {
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+      }, 1200); // wait a moment, then fade
+    }
+  }
+  typeWriter();
 
   if (!isMobile) {
     // ✅ only enable glass cursor effect on desktop
@@ -260,6 +268,3 @@
 </script>
 </body>
 </html>
-
-
-
