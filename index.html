@@ -28,7 +28,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: url("DESIGNSYNDROME-PAPERCUT-TEXTURE---TRANSPARENT90.png");
+      background-image: url("Assets/DESIGNSYNDROME-PAPERCUT-TEXTURE---TRANSPARENT90.png");
       background-size: cover;
       background-repeat: repeat;
       opacity: 0.35;
@@ -93,6 +93,7 @@
       pointer-events: none;
       color: #4B2E2E;
       z-index: 2;
+      opacity: 0;
     }
 
     /* Custom cursor */
@@ -119,7 +120,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 30000; /* above everything */
+      z-index: 30000;
       pointer-events: none;
     }
     .loading-text {
@@ -142,6 +143,33 @@
       }
     }
 
+    /* 📱 Mobile styles */
+    @media (max-width: 768px) {
+      body { cursor: auto; } /* default cursor back */
+      * { cursor: auto !important; }
+
+      .cursor-circle { display: none; } /* hide custom cursor */
+
+      .container {
+        font-size: 12rem; /* larger JINSHIL */
+      }
+
+      .navbar {
+        top: 0;
+        left: 0;
+        transform: none;
+        width: 100%;
+        justify-content: space-around;
+        background: #4B2E2E;
+        padding: 10px 0;
+      }
+      .navbar button {
+        flex: 1;
+        border-radius: 0;
+        border: none;
+        font-size: 1.4rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -160,58 +188,73 @@
   <!-- Text Container -->
   <div class="container">
     <div class="english">JINSHIL</div>
-    <div class="korean" style="opacity:0;">&nbsp;&nbsp;&nbsp;진실</div>
+    <div class="korean">&nbsp;&nbsp;&nbsp;진실</div>
   </div>
 
   <!-- Custom Cursor -->
   <div class="cursor-circle"></div>
 
   <script>
-  // Cursor movement
-  const cursor = document.querySelector('.cursor-circle');
-  document.addEventListener('mousemove', (e) => {
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top = e.clientY + 'px';
-  });
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-  // Korean positioning
-  const container = document.querySelector('.container');
-  const english = document.querySelector('.english');
-  const korean = document.querySelector('.korean');
+  if (!isMobile) {
+    // Cursor movement with requestAnimationFrame
+    const cursor = document.querySelector('.cursor-circle');
+    let mouseX = 0, mouseY = 0, rafId;
 
-  function updateKorean() {
-    const englishRect = english.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const topOffset = (englishRect.top - containerRect.top);
-    const leftOffset = englishRect.left - containerRect.left;
-    korean.style.top = topOffset + 'px';
-    korean.style.left = leftOffset + 'px';
-  }
-  updateKorean();
-  window.addEventListener('resize', updateKorean);
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (!rafId) {
+        rafId = requestAnimationFrame(updateCursor);
+      }
+    });
 
-  // Korean reveal effect on first cursor movement
-  let revealed = false;
-  document.addEventListener('mousemove', (e) => {
-    if (!revealed) {
-      korean.style.opacity = '1'; // reveal the Korean text
-      revealed = true;
+    function updateCursor() {
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top = mouseY + 'px';
+      rafId = null;
     }
 
-    const rect = container.getBoundingClientRect();
-    const relativeX = e.clientX - rect.left;
-    const relativeY = e.clientY - rect.top;
+    // Korean positioning
+    const container = document.querySelector('.container');
+    const english = document.querySelector('.english');
+    const korean = document.querySelector('.korean');
 
-    const mask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, white 100%, transparent 100%)`;
-    korean.style.webkitMaskImage = mask;
-    korean.style.maskImage = mask;
+    let englishRect, containerRect;
+    function updateKorean() {
+      englishRect = english.getBoundingClientRect();
+      containerRect = container.getBoundingClientRect();
+      const topOffset = (englishRect.top - containerRect.top);
+      const leftOffset = englishRect.left - containerRect.left;
+      korean.style.top = topOffset + 'px';
+      korean.style.left = leftOffset + 'px';
+    }
+    updateKorean();
+    window.addEventListener('resize', updateKorean);
 
-    const inverseMask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, transparent 100%, white 100%)`;
-    english.style.webkitMaskImage = inverseMask;
-    english.style.maskImage = inverseMask;
-  });
+    // Korean reveal effect
+    let revealed = false;
+    document.addEventListener('mousemove', (e) => {
+      if (!revealed) {
+        korean.style.opacity = '1';
+        revealed = true;
+      }
 
-  // Loading screen animation (same as before)
+      const relativeX = e.clientX - containerRect.left;
+      const relativeY = e.clientY - containerRect.top;
+
+      const mask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, white 100%, transparent 100%)`;
+      korean.style.webkitMaskImage = mask;
+      korean.style.maskImage = mask;
+
+      const inverseMask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, transparent 100%, white 100%)`;
+      english.style.webkitMaskImage = inverseMask;
+      english.style.maskImage = inverseMask;
+    });
+  }
+
+  // Loading screen animation
   const loadingText = document.querySelector('.loading-text');
   const text = loadingText.textContent;
   loadingText.textContent = '';
@@ -222,15 +265,15 @@
     loadingText.appendChild(span);
   });
 
-  const totalDuration = text.length * 50 + 1000; // animation + 1s
+  const totalDuration = text.length * 50 + 1000;
   setTimeout(() => {
     const screen = document.querySelector('.loading-screen');
     screen.style.transition = 'opacity 0.5s ease';
     screen.style.opacity = '0';
     setTimeout(() => screen.remove(), 500);
   }, totalDuration);
-
-</script>
+  </script>
 </body>
 </html>
+
 
