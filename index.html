@@ -143,34 +143,44 @@
       }
     }
 
-    /* 📱 Mobile styles */
-    @media (max-width: 768px) {
-      body { cursor: auto; } /* default cursor back */
-      * { cursor: auto !important; }
+     /* 📱 Mobile styles */
+  @media (max-width: 768px) {
+    body { cursor: auto; }
+    * { cursor: auto !important; }
+    .cursor-circle { display: none; }
 
-      .cursor-circle { display: none; } /* hide custom cursor */
-
-      .container {
-        font-size: 12rem; /* larger JINSHIL */
-      }
-
-      .navbar {
-        top: 0;
-        left: 0;
-        transform: none;
-        width: 100%;
-        justify-content: space-around;
-        background: #4B2E2E;
-        padding: 10px 0;
-      }
-      .navbar button {
-        flex: 1;
-        border-radius: 0;
-        border: none;
-        font-size: 1.4rem;
-      }
+    /* Make JINSHIL bigger */
+    .container {
+      font-size: 14rem !important;
     }
-  </style>
+    .english {
+      font-size: inherit !important;
+    }
+
+    /* Make the quote bigger */
+    .loading-text {
+      font-size: 3rem !important;
+      text-align: center;
+    }
+
+    /* Navbar takes full width */
+    .navbar {
+      top: 0;
+      left: 0;
+      transform: none !important;
+      width: 100%;
+      justify-content: space-around;
+      background: #4B2E2E;
+      padding: 10px 0;
+    }
+    .navbar button {
+      flex: 1;
+      border-radius: 0;
+      border: none;
+      font-size: 1.6rem !important;
+    }
+  }
+</style>
 </head>
 <body>
   <!-- Loading screen -->
@@ -194,20 +204,18 @@
   <!-- Custom Cursor -->
   <div class="cursor-circle"></div>
 
-  <script>
+ <script>
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
   if (!isMobile) {
-    // Cursor movement with requestAnimationFrame
+    // ✅ only enable glass cursor effect on desktop
     const cursor = document.querySelector('.cursor-circle');
     let mouseX = 0, mouseY = 0, rafId;
 
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      if (!rafId) {
-        rafId = requestAnimationFrame(updateCursor);
-      }
+      if (!rafId) rafId = requestAnimationFrame(updateCursor);
     });
 
     function updateCursor() {
@@ -216,24 +224,19 @@
       rafId = null;
     }
 
-    // Korean positioning
     const container = document.querySelector('.container');
     const english = document.querySelector('.english');
     const korean = document.querySelector('.korean');
 
-    let englishRect, containerRect;
     function updateKorean() {
-      englishRect = english.getBoundingClientRect();
-      containerRect = container.getBoundingClientRect();
-      const topOffset = (englishRect.top - containerRect.top);
-      const leftOffset = englishRect.left - containerRect.left;
-      korean.style.top = topOffset + 'px';
-      korean.style.left = leftOffset + 'px';
+      const englishRect = english.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      korean.style.top = (englishRect.top - containerRect.top) + 'px';
+      korean.style.left = (englishRect.left - containerRect.left) + 'px';
     }
     updateKorean();
     window.addEventListener('resize', updateKorean);
 
-    // Korean reveal effect
     let revealed = false;
     document.addEventListener('mousemove', (e) => {
       if (!revealed) {
@@ -241,8 +244,9 @@
         revealed = true;
       }
 
-      const relativeX = e.clientX - containerRect.left;
-      const relativeY = e.clientY - containerRect.top;
+      const rect = container.getBoundingClientRect();
+      const relativeX = e.clientX - rect.left;
+      const relativeY = e.clientY - rect.top;
 
       const mask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, white 100%, transparent 100%)`;
       korean.style.webkitMaskImage = mask;
@@ -253,27 +257,9 @@
       english.style.maskImage = inverseMask;
     });
   }
-
-  // Loading screen animation
-  const loadingText = document.querySelector('.loading-text');
-  const text = loadingText.textContent;
-  loadingText.textContent = '';
-  text.split('').forEach((char, index) => {
-    const span = document.createElement('span');
-    span.textContent = char;
-    span.style.animationDelay = `${index * 0.05}s`;
-    loadingText.appendChild(span);
-  });
-
-  const totalDuration = text.length * 50 + 1000;
-  setTimeout(() => {
-    const screen = document.querySelector('.loading-screen');
-    screen.style.transition = 'opacity 0.5s ease';
-    screen.style.opacity = '0';
-    setTimeout(() => screen.remove(), 500);
-  }, totalDuration);
-  </script>
+</script>
 </body>
 </html>
+
 
 
