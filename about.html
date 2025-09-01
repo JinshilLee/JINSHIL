@@ -116,7 +116,7 @@ a { all: unset; text-decoration: none; color: inherit; cursor: pointer; }
   margin-top: 20px;
 }
 
-/* Korean-English reveal */
+/* Korean → English reveal */
 .korean-container {
   position: relative;
   display: inline-block;
@@ -139,8 +139,12 @@ a { all: unset; text-decoration: none; color: inherit; cursor: pointer; }
   font-family: 'Space Grotesk', sans-serif;
   color: #4B2E2E;
   z-index: 2;
-  opacity: 0;
+  opacity: 1;
   pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle 0px at 50% 50%, white 100%, transparent 100%);
+  mask-image: radial-gradient(circle 0px at 50% 50%, white 100%, transparent 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /* 📱 Mobile styles */
@@ -156,7 +160,7 @@ a { all: unset; text-decoration: none; color: inherit; cursor: pointer; }
   }
 
   .typing-text span {
-    font-size: 6vw !important; /* bigger on mobile */
+    font-size: 6vw !important;
   }
 
   /* Navbar centered at top */
@@ -235,7 +239,6 @@ if (!isMobile) {
 const typingText = document.getElementById('typing');
 const text = typingText.textContent;
 typingText.textContent = '';
-
 text.split('').forEach((char, i) => {
   const span = document.createElement('span');
   span.textContent = char;
@@ -260,14 +263,17 @@ if (!isMobile) {
 
   document.addEventListener('mousemove', e => {
     const rect = container.getBoundingClientRect();
-    const relativeX = e.clientX - rect.left;
-    const relativeY = e.clientY - rect.top;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const radius = 80;
 
-    const mask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, white 100%, transparent 100%)`;
+    // Reveal English through circular mask
+    const mask = `radial-gradient(circle ${radius}px at ${x}px ${y}px, white 100%, transparent 100%)`;
     english.style.webkitMaskImage = mask;
     english.style.maskImage = mask;
 
-    const inverseMask = `radial-gradient(circle 80px at ${relativeX}px ${relativeY}px, transparent 100%, white 100%)`;
+    // Hide Korean inside same circle
+    const inverseMask = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 100%, white 100%)`;
     korean.style.webkitMaskImage = inverseMask;
     korean.style.maskImage = inverseMask;
   });
